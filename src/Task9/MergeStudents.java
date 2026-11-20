@@ -23,41 +23,19 @@ public class MergeStudents {
         }
     }
 
-    // Quicksort по GPA (убывание) — чтобы списки были отсортированы перед слиянием
-    static void quickSortByGpa(List<Student> list, int low, int high) {
-        if (low < high) {
-            int pi = partition(list, low, high);
-            quickSortByGpa(list, low, pi - 1);
-            quickSortByGpa(list, pi + 1, high);
-        }
-    }
+    // Сортировка слиянием (merge sort) по GPA (убывание)
+    static List<Student> mergeSort(List<Student> list) {
+        // База: список из 0 или 1 элемента уже отсортирован
+        if (list.size() <= 1) return new ArrayList<>(list);
 
-    private static int partition(List<Student> list, int low, int high) {
-        Student pivot = list.get(high);
-        int i = low - 1;
-        for (int j = low; j < high; j++) {
-            // по убыванию: больший GPA — левее
-            if (list.get(j).gpa > pivot.gpa) {
-                i++;
-                Student tmp = list.get(i);
-                list.set(i, list.get(j));
-                list.set(j, tmp);
-            }
-        }
-        Student tmp = list.get(i + 1);
-        list.set(i + 1, list.get(high));
-        list.set(high, tmp);
-        return i + 1;
-    }
-
-    static void sortByGpa(List<Student> list) {
-        if (list != null && list.size() > 1) {
-            quickSortByGpa(list, 0, list.size() - 1);
-        }
+        int mid = list.size() / 2;
+        List<Student> left  = mergeSort(list.subList(0, mid));
+        List<Student> right = mergeSort(list.subList(mid, list.size()));
+        return merge(left, right);
     }
 
     // Слияние двух ОТСОРТИРОВАННЫХ по GPA (убывание) списков
-    static List<Student> mergeByGPA(List<Student> a, List<Student> b) {
+    static List<Student> merge(List<Student> a, List<Student> b) {
         List<Student> result = new ArrayList<>(a.size() + b.size());
         int i = 0, j = 0;
         while (i < a.size() && j < b.size()) {
@@ -72,13 +50,11 @@ public class MergeStudents {
         return result;
     }
 
-    // Полный сценарий: два произвольных списка → один отсортированный
+    // Полный сценарий: два списка → один отсортированный (сортировка слиянием)
     static List<Student> mergeAndSort(List<Student> a, List<Student> b) {
-        List<Student> aCopy = new ArrayList<>(a);
-        List<Student> bCopy = new ArrayList<>(b);
-        sortByGpa(aCopy);
-        sortByGpa(bCopy);
-        return mergeByGPA(aCopy, bCopy);
+        List<Student> all = new ArrayList<>(a);
+        all.addAll(b);
+        return mergeSort(all);
     }
 
     public static void main(String[] args) {
